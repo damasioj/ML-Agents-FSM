@@ -117,6 +117,12 @@ public abstract class ManualAgent : MonoBehaviour
     }
 
     /// <summary>
+    /// Checks if the agent has reached the target.
+    /// </summary>
+    /// <returns></returns>
+    public abstract bool IsAtDestination();
+
+    /// <summary>
     /// Gets the current destination of the agent.
     /// </summary>
     public virtual Vector3 GetDestination()

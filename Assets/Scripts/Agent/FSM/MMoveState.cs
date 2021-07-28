@@ -2,13 +2,12 @@
 using UnityEngine;
 
 /// <summary>
-/// To keep similarities with the RL-FSM system, we use a MoveState for the non-RL FSM architecture.
-/// Typically, since movement can be easily generalized, this logic is defined on the base subject,
-/// and only action-specific states are used.
+/// This is used by the FSM architecture 1, that was made to be as similar as possible to the RL architecture.
+/// A typical FSM architecture may not have a Move state, and instead have states the represent jobs or tasks
+/// rather than actions.
 /// </summary>
 public class MMoveState : ManualState
 {
-    private Vector3 _lastPosition = Vector3.zero;
     public override bool IsFinished { get; protected set; }
 
     public MMoveState(ManualAgent owner)
@@ -34,7 +33,7 @@ public class MMoveState : ManualState
         }
 
         SetDirection();
-        _lastPosition = Owner.transform.position;
+        lastPosition = Owner.transform.position;
     }
 
     public override void OnEnter()
@@ -49,16 +48,14 @@ public class MMoveState : ManualState
 
     public override void OnFixedUpdate()
     {
-        float[] movement = BasicPathfinder.GetDirection(Owner.Body.transform.localPosition, Owner.GetDestination());
-
-        if (!(movement[0] == 0 && movement[1] == 0))
+        if (Owner.IsAtDestination())
         {
-            IsFinished = false;
-            DoAction(movement);
+            IsFinished = true;
         }
         else
         {
-            IsFinished = true;
+            float[] movement = BasicPathfinder.GetDirection(Owner.Body.transform.localPosition, Owner.GetDestination());
+            DoAction(movement);
         }
     }
 
@@ -70,15 +67,5 @@ public class MMoveState : ManualState
     public override void SetAction(Action action, float duration = 0f)
     {
         return;
-    }
-
-    private void SetDirection()
-    {
-        var direction = (Owner.transform.position - _lastPosition).normalized;
-
-        if (Owner.transform.rotation != Quaternion.LookRotation(direction))
-        {
-            Owner.transform.rotation = Quaternion.Slerp(Owner.transform.rotation, Quaternion.LookRotation(direction), 0.08F);
-        }
     }
 }

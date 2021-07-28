@@ -3,5 +3,8 @@
     Idle,
     Move,
     Interact,
-    Attack
+    Attack,
+    Gather,
+    Build,
+    Haul
 }

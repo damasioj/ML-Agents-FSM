@@ -1,13 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Unity.MLAgents.Sensors;
+using Unity.Profiling;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 /// <summary>
 /// Represents an agent with the goal of collecting resources and bringing it to a defined goal.
 /// </summary>
 public class CollectorAgent : BasicAgent, IHasGoal
-{    
+{
+    static readonly ProfilerMarker s_ActionMarker = new ProfilerMarker("MLFSM.DoAction");
+    static readonly ProfilerMarker s_ObservationMarker = new ProfilerMarker("MLFSM.GetObservation");
+
     private BaseResource resource;
     private bool HasResource => resource is object;
     private bool IsAtResource { get; set; }
@@ -86,6 +91,8 @@ public class CollectorAgent : BasicAgent, IHasGoal
     {
         if (Target is object)
         {
+            s_ObservationMarker.Begin();
+
             // target location
             sensor.AddObservation(Target.Location.x); //1
             sensor.AddObservation(Target.Location.z); //1
@@ -102,12 +109,15 @@ public class CollectorAgent : BasicAgent, IHasGoal
             sensor.AddObservation(Body.velocity.z); //1
             sensor.AddObservation((int)CurrentState); // 1
             sensor.AddObservation(IsAtResource); // 1
+
+            s_ObservationMarker.End();
         }
     }
 
     public override void OnActionReceived(float[] vectorAction)
     {
-        //TODO : refactor ... maybe use events / delegates?
+        s_ActionMarker.Begin();
+
         if (StateDictionary[CurrentState].IsFinished)
         {
             CollectResource();
@@ -117,6 +127,8 @@ public class CollectorAgent : BasicAgent, IHasGoal
         {
             Move(vectorAction);
         }
+
+        s_ActionMarker.End();
     }
 
     private void CollectResource()

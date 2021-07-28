@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 /// <summary>
 /// Represents a State for the manual FSM architecture.
@@ -6,6 +7,7 @@
 /// </summary>
 public abstract class ManualState
 {
+    protected Vector3 lastPosition = Vector3.zero;
     protected ManualAgent Owner { get; set; }
 
     public ManualState(ManualAgent owner)
@@ -42,4 +44,36 @@ public abstract class ManualState
     public abstract void SetAction(Action action, float duration = 0f);
     public abstract void DoAction();
     public abstract void DoAction(float[] input);
+
+    /// <summary>
+    /// This is used by FSM architecture 2 that does not handle a Move state.
+    /// States in this architecture represent tasks or jobs, and manage actions independently.
+    /// </summary>
+    protected void Move(float[] input)
+    {
+        var rBody = Owner.GetComponent<Rigidbody>();
+        var scale = Owner.gameObject.transform.localScale.x;
+
+        if (rBody is object)
+        {
+            Vector3 direction = Vector3.zero;
+            direction.x = input[0];
+            direction.z = input[1];
+
+            rBody.AddForce(new Vector3(direction.x * Owner.acceleration * scale, 0, direction.z * Owner.acceleration * scale));
+        }
+
+        SetDirection();
+        lastPosition = Owner.transform.position;
+    }
+
+    protected void SetDirection()
+    {
+        var direction = (Owner.transform.position - lastPosition).normalized;
+
+        if (Owner.transform.rotation != Quaternion.LookRotation(direction))
+        {
+            Owner.transform.rotation = Quaternion.Slerp(Owner.transform.rotation, Quaternion.LookRotation(direction), 0.08F);
+        }
+    }
 }
