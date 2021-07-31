@@ -1,13 +1,13 @@
 ﻿using System;
 
 /// <summary>
+/// Only for demonstration purposes.
 /// This is not used as our environment doesn't simulate the building action.
 /// </summary>
 public class MBuildState : ManualState
 {
-    private Action actionToExecute;
-    private float counter = 0f;
-    private float actionDuration = 0f;
+    new private BaseStructure Target { get; set; }
+    private float actionDuration = 100f; // this info would be taken from the target
 
     public override bool IsFinished { get; protected set; }
 
@@ -16,9 +16,12 @@ public class MBuildState : ManualState
 
     public override void SetAction(Action action, float duration = 0f)
     {
-        actionDuration = duration;
-        counter = 0f;
-        actionToExecute = action;
+        return;
+    }
+
+    public override void SetTarget(BaseTarget target)
+    {
+        Target = target as BaseStructure;
     }
 
     public override void DoAction()

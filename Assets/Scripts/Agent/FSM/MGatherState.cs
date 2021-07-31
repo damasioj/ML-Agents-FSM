@@ -1,21 +1,26 @@
 ﻿using System;
 
+/// <summary>
+/// State represents a high-level task with possibly multiple low-level actions.
+/// </summary>
 public class MGatherState : ManualState
 {
-    private Action actionToExecute;
-    private float counter = 0f;
-    private float actionDuration = 0f;
-
+    new private BaseSource Target { get; set; }
     public override bool IsFinished { get; protected set; }
+    private float counter = 0;
+    private float actionDuration = 50; // this value is normally taken from the target
 
     public MGatherState(ManualAgent owner)
         : base(owner) { }
 
     public override void SetAction(Action action, float duration = 0f)
     {
-        actionDuration = duration;
-        counter = 0f;
-        actionToExecute = action;
+        return;
+    }
+
+    public override void SetTarget(BaseTarget target)
+    {
+        Target = target as BaseSource;
     }
 
     public override void DoAction()
@@ -31,6 +36,7 @@ public class MGatherState : ManualState
     public override void OnEnter()
     {
         IsFinished = false;
+        counter = 0;
     }
 
     public override void OnExit()
@@ -44,7 +50,7 @@ public class MGatherState : ManualState
         {
             if (!IsFinished && counter >= actionDuration)
             {
-                actionToExecute();
+                Owner.resource = Target.TakeResource();
                 IsFinished = true;
                 Owner.CurrentState = AgentStateType.Idle;
                 return;

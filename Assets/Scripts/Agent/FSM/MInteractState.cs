@@ -18,6 +18,11 @@ public class MInteractState : ManualState
         actionToExecute = action;
     }
 
+    public override void SetTarget(BaseTarget target)
+    {
+        return;
+    }
+
     public override void DoAction()
     {
         return;

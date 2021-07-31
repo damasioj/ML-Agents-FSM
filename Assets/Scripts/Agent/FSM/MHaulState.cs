@@ -1,24 +1,26 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
+/// <summary>
+/// State represents a high-level task with possibly multiple low-level actions.
+/// </summary>
 public class MHaulState : ManualState
 {
-    private Action actionToExecute;
-    private float counter = 0f;
-    private float actionDuration = 0f;
+    new private BaseStructure Target { get; set; }
 
     public override bool IsFinished { get; protected set; }
 
     public MHaulState(ManualAgent owner)
         : base(owner) { }
 
+    // not used in this state type
     public override void SetAction(Action action, float duration = 0f)
     {
-        actionDuration = duration;
-        counter = 0f;
-        actionToExecute = action;
+        return;
+    }
+
+    public override void SetTarget(BaseTarget target)
+    {
+        Target = target as BaseStructure;
     }
 
     public override void DoAction()
@@ -45,15 +47,14 @@ public class MHaulState : ManualState
     {
         if (Owner.IsAtDestination())
         {
-            if (!IsFinished && counter >= actionDuration)
+            if (!IsFinished)
             {
-                actionToExecute();
                 IsFinished = true;
+                Target.AddResource(ref Owner.resource);
                 Owner.CurrentState = AgentStateType.Idle;
+                Finished();
                 return;
             }
-
-            counter++;
         }
         else
         {

@@ -68,4 +68,8 @@ public class MMoveState : ManualState
     {
         return;
     }
+    public override void SetTarget(BaseTarget target)
+    {
+        return;
+    }
 }

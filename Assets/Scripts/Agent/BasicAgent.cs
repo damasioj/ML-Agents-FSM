@@ -19,7 +19,7 @@ public abstract class BasicAgent : Agent
     #region Properties
     public virtual BaseTarget Target { get; set; }
     public Rigidbody Body { get; protected set; }
-    public int InternalStepCount { get; protected set; }    
+    public int InternalStepCount { get; protected set; }
     protected bool IsDoneCalled { get; set; }
     protected Dictionary<AgentStateType, AgentState> StateDictionary { get; set; }
     private Vector3 PreviousPosition { get; set; }
@@ -131,8 +131,6 @@ public abstract class BasicAgent : Agent
             PreviousPosition = transform.position;
         }
     }
-
-    
 
     public override void Heuristic(float[] actions)
     {

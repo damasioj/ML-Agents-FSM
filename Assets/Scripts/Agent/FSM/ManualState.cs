@@ -9,6 +9,9 @@ public abstract class ManualState
 {
     protected Vector3 lastPosition = Vector3.zero;
     protected ManualAgent Owner { get; set; }
+    protected BaseTarget Target { get; set; }
+
+    public event EventHandler FinishEvent;
 
     public ManualState(ManualAgent owner)
     {
@@ -42,8 +45,14 @@ public abstract class ManualState
     /// <param name="action">The action to be executed during updates.</param>
     /// <param name="duration">The duration to perform the action.</param>
     public abstract void SetAction(Action action, float duration = 0f);
+    /// <summary>
+    /// The SetTarget allows agents to set the current target or goal.
+    /// This is used for states that represent high-level tasks and requires target information.
+    /// </summary>
+    /// <param name="target"></param>
+    public abstract void SetTarget(BaseTarget target);
     public abstract void DoAction();
-    public abstract void DoAction(float[] input);
+    public abstract void DoAction(float[] input);    
 
     /// <summary>
     /// This is used by FSM architecture 2 that does not handle a Move state.
@@ -75,5 +84,12 @@ public abstract class ManualState
         {
             Owner.transform.rotation = Quaternion.Slerp(Owner.transform.rotation, Quaternion.LookRotation(direction), 0.08F);
         }
+    }
+
+    // Ideally, this is linked with the IsFinished property, 
+    // but not really concerned about coherancy for the traditional FSMs.
+    protected void Finished()
+    {
+        FinishEvent?.Invoke(this, null);
     }
 }

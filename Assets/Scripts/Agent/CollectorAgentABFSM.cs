@@ -13,7 +13,6 @@ public class CollectorAgentABFSM : ManualAgent, IHasGoal
     static readonly ProfilerMarker s_SetPerfMarker = new ProfilerMarker("ActionBasedFSM.SetAction");
     static readonly ProfilerMarker s_OverallPerfMarker = new ProfilerMarker("ActionBasedFSM.Overall");
 
-    private BaseResource resource;
     private bool HasResource => resource is object;
     private bool IsAtSource { get; set; }
     private bool IsAtGoal { get; set; }
@@ -75,43 +74,6 @@ public class CollectorAgentABFSM : ManualAgent, IHasGoal
         }
     }
 
-    //public override void CollectObservations(VectorSensor sensor)
-    //{
-    //    if (Target is object)
-    //    {
-    //        // target location
-    //        sensor.AddObservation(Target.Location.x); //1
-    //        sensor.AddObservation(Target.Location.z); //1
-
-    //        // goal info
-    //        sensor.AddObservation(Goal.Location.x); //1
-    //        sensor.AddObservation(Goal.Location.z); //1
-
-    //        // Agent data
-    //        sensor.AddObservation(HasResource); //1
-    //        sensor.AddObservation(transform.localPosition.x); //1
-    //        sensor.AddObservation(transform.localPosition.z); //1
-    //        sensor.AddObservation(Body.velocity.x); //1
-    //        sensor.AddObservation(Body.velocity.z); //1
-    //        sensor.AddObservation((int)CurrentState); // 1
-    //        sensor.AddObservation(IsAtResource); // 1
-    //    }
-    //}
-
-    //public override void OnActionReceived(float[] vectorAction)
-    //{
-    //    //TODO : refactor ... maybe use events / delegates?
-    //    if (StateDictionary[CurrentState].IsFinished)
-    //    {
-    //        CollectResource();
-    //    }
-
-    //    if (StateDictionary[CurrentState].IsFinished)
-    //    {
-    //        Move(vectorAction);
-    //    }
-    //}
-
     protected void DoAction()
     {
         if (StateDictionary[CurrentState].IsFinished)
@@ -144,8 +106,6 @@ public class CollectorAgentABFSM : ManualAgent, IHasGoal
                 // drop resources
                 Goal.AddResource(ref resource);
                 ValidateJobComplete();
-                ValidateGoalComplete();
-                InternalStepCount = 0;
             }
 
             s_SetPerfMarker.End();
@@ -163,7 +123,6 @@ public class CollectorAgentABFSM : ManualAgent, IHasGoal
     /// </summary>
     private void CollectResource()
     {
-        InternalStepCount = 0;
         CurrentState = AgentStateType.Interact;
         StateDictionary[CurrentState].SetAction(TakeResource, 50f);
     }
@@ -174,11 +133,6 @@ public class CollectorAgentABFSM : ManualAgent, IHasGoal
         if (!HasResource)
         {
             resource = Target.TakeResource();
-
-            if (resource is object)
-            {
-                InternalStepCount = 0;
-            }
         }
     }
 
@@ -192,14 +146,6 @@ public class CollectorAgentABFSM : ManualAgent, IHasGoal
         if (!isResourceRequired)
         {
             OnTaskDone();
-        }
-    }
-
-    protected void ValidateGoalComplete()
-    {
-        if (Goal.IsComplete)
-        {
-            Debug.Log("COLLECTOR :: Job complete.");
         }
     }
 
@@ -235,11 +181,6 @@ public class CollectorAgentABFSM : ManualAgent, IHasGoal
         Target = baseTargets.FirstOrDefault(t => t.IsValid
                                             && t is BaseSource source
                                             && resourceTypes.Contains(source.GetResourceType())) as BaseSource;
-
-        if (Target == null)
-        {
-            Debug.Log("COLLECTOR :: No targets.");
-        }
     }
 
     public void UpdateGoal(IEnumerable<BaseStructure> baseStructures)
@@ -247,10 +188,6 @@ public class CollectorAgentABFSM : ManualAgent, IHasGoal
         if (baseStructures.Count() > 0)
         {
             Goal = baseStructures.First();
-        }
-        else
-        {
-            Debug.Log("COLLECTOR :: No new goals.");
         }
     }
 }

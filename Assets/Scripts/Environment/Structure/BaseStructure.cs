@@ -6,7 +6,7 @@ using UnityEngine;
 /// The structure class represent all constructed objects in the scene.
 /// This class is typically used as the goal for task-oriented agents, but could also be the target.
 /// </summary>
-public abstract class BaseStructure : MonoBehaviour
+public abstract class BaseStructure : BaseTarget
 {
     public Dictionary<string, float> locationLimits;
 
@@ -19,18 +19,6 @@ public abstract class BaseStructure : MonoBehaviour
                 -0.3f,
                 UnityEngine.Random.Range(locationLimits["-Z"], locationLimits["Z"])
             );
-    }
-
-    public virtual Vector3 Location
-    {
-        get
-        {
-            return gameObject.transform.localPosition;
-        }
-        private set
-        {
-            gameObject.transform.localPosition = value;
-        }
     }
 
     /// <summary>

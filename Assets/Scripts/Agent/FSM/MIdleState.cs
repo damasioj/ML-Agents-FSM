@@ -13,6 +13,11 @@ public class MIdleState : ManualState
         return;
     }
 
+    public override void SetTarget(BaseTarget target)
+    {
+        return;
+    }
+
     public override void DoAction()
     {
         return;

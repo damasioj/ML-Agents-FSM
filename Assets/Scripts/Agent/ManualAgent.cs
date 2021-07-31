@@ -9,11 +9,11 @@ public abstract class ManualAgent : MonoBehaviour
 
     public int maxInternalSteps;
     public float acceleration;
+    public BaseResource resource;
 
     #region Properties
     public virtual BaseTarget Target { get; set; }
     public Rigidbody Body { get; protected set; }
-    public int InternalStepCount { get; protected set; }
     protected bool IsDoneCalled { get; set; }
     protected Dictionary<AgentStateType, ManualState> StateDictionary { get; set; }
     private Vector3 PreviousPosition { get; set; }
@@ -41,7 +41,6 @@ public abstract class ManualAgent : MonoBehaviour
         StartPosition = transform.position;
         PreviousPosition = StartPosition;
         AssignStateDictionary();
-        InternalStepCount = 0;
         IsDoneCalled = false;
         OnTaskDone(); // force update of target and goal
         transform.position = StartPosition;
@@ -61,7 +60,6 @@ public abstract class ManualAgent : MonoBehaviour
 
     void FixedUpdate()
     {
-        InternalStepCount++;
         OnFixedUpdate();
     }
 
@@ -88,32 +86,6 @@ public abstract class ManualAgent : MonoBehaviour
     protected virtual void OnTaskDone()
     {
         TaskDone?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void Move(float[] input)
-    {
-        // agent is idle
-        if (input[0] == 0 && input[1] == 0)
-        {
-            CurrentState = AgentStateType.Idle;
-            return;
-        }
-
-        // agent is moving
-        CurrentState = AgentStateType.Move;
-        StateDictionary[CurrentState].DoAction(input);
-    }
-
-    protected virtual void SetDirection()
-    {
-        if (transform.position != PreviousPosition)
-        {
-            var direction = (transform.position - PreviousPosition).normalized;
-            direction.y = 0;
-
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.15F);
-            PreviousPosition = transform.position;
-        }
     }
 
     /// <summary>
