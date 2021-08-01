@@ -122,14 +122,7 @@ public abstract class BasicAgent : Agent
 
     protected virtual void SetDirection()
     {
-        if (transform.position != PreviousPosition)
-        {
-            var direction = (transform.position - PreviousPosition).normalized;
-            direction.y = 0;
-
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.15F);
-            PreviousPosition = transform.position;
-        }
+        return;
     }
 
     public override void Heuristic(float[] actions)
